@@ -4,7 +4,7 @@ Reserve parking spots in the area of San Francisco
 
 ## Importing Instructions
 
-Download the zip file, unzip it, and use Android Studio to import the project folder.
+Download the zip file, unzip it, and use Android Studio to import the project folder. I compiled it using Android 2.2 preview 3.
 
 The app uses two Google API kies- one for maps one for street view imagery. I left my kies in the project
 and the app should work fine as dowloaded and imported to Android studio without any setups. 

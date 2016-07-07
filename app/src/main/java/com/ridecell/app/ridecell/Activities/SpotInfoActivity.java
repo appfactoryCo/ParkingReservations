@@ -101,12 +101,10 @@ public class SpotInfoActivity extends AppCompatActivity {
         address.setText(intent.getStringExtra(Constants.THE_ADDRESS));
 
         final TextView open = (TextView) findViewById(R.id.open);
-        if(Constants.SPOTDATA.getIsReserved())
-        open.setText("No");
-        else
-        open.setText(("Yes"));
+        int openSpots = intent.getIntExtra(Constants.OPEN_SPOTS, 1);
+        open.setText(String.valueOf(openSpots));
 
-        costPrMin = Double.valueOf(Constants.SPOTDATA.getCostPerMinute());
+        costPrMin = Double.valueOf(Constants.SLECTED_SPOT.getCostPerMinute());
 
         final  TextView costTv = (TextView) findViewById(R.id.cost);
         costTv.setText(String.valueOf(costPrMin));
@@ -446,10 +444,10 @@ public class SpotInfoActivity extends AppCompatActivity {
                 .build();
         final ReserveInterfacePATCH  apiRequest = retrofit.create(ReserveInterfacePATCH.class);
 
-        Constants.SPOTDATA.setReservedUntil(null);
-        Constants.SPOTDATA.setIsReserved(false);
+        Constants.SLECTED_SPOT.setReservedUntil(null);
+        Constants.SLECTED_SPOT.setIsReserved(false);
         //spid = id;
-        Call<SpotData> call = apiRequest.reserveSpot(Constants.SPOTDATA.getId(), Constants.SPOTDATA); // pass query to the endpoint
+        Call<SpotData> call = apiRequest.reserveSpot(Constants.SLECTED_SPOT.getId(), Constants.SLECTED_SPOT); // pass query to the endpoint
         call.enqueue(new Callback<SpotData>() {
             @Override
             public void onResponse(Call<SpotData> call, Response<SpotData> response) {
@@ -485,10 +483,10 @@ public class SpotInfoActivity extends AppCompatActivity {
 
         calendar.add(Calendar.MINUTE, minutes); // add seekbar value to the selected time
 
-        Constants.SPOTDATA.setReservedUntil(getTimeDateString());
-        Constants.SPOTDATA.setIsReserved(true);
+        Constants.SLECTED_SPOT.setReservedUntil(getTimeDateString());
+        Constants.SLECTED_SPOT.setIsReserved(true);
 
-        Call<SpotData> call = apiRequest.reserveSpot(Constants.SPOTDATA.getId(), Constants.SPOTDATA); // pass query to the endpoint
+        Call<SpotData> call = apiRequest.reserveSpot(Constants.SLECTED_SPOT.getId(), Constants.SLECTED_SPOT); // pass query to the endpoint
         call.enqueue(new Callback<SpotData>() {
             @Override
             public void onResponse(Call<SpotData> call, Response<SpotData> response) {

@@ -61,6 +61,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -107,6 +108,8 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
     private ArrayList<Marker> reservedMarkers;
     private SharedPreferences sharedPrefs;
     private GestureDetector gDetector;
+    private int openSpots;
+    private Dialog dialog ;
 
 
     //================================================================================
@@ -143,11 +146,11 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
             public boolean onMarkerClick(Marker marker) {
                 selectedMarker = marker;
 
-                Constants.SPOTDATA = extraMarkerInfo.get(marker.getId());
+                Constants.SLECTED_SPOT = extraMarkerInfo.get(marker.getId());
 
-                if (Constants.SPOTDATA != null) {
-                    LatLng spot = new LatLng(Double.valueOf(Constants.SPOTDATA.getLat()),
-                            Double.valueOf(Constants.SPOTDATA.getLng()));
+                if (Constants.SLECTED_SPOT != null) {
+                    LatLng spot = new LatLng(Double.valueOf(Constants.SLECTED_SPOT.getLat()),
+                            Double.valueOf(Constants.SLECTED_SPOT.getLng()));
                     gmap.animateCamera(CameraUpdateFactory.newLatLng(spot), 200, new GoogleMap.CancelableCallback() {
                         @Override
                         public void onFinish() {
@@ -164,6 +167,18 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
         });
 
     }// onMapReady
+
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Checks the orientation of the screen
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            dialog.dismiss();
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            dialog.dismiss();
+        }
+    }
     //================================================================================
     // END ACTIVITY METHODS
     //================================================================================
@@ -235,6 +250,11 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
 
         setAnimationListeners();
 
+        dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.getWindow().setDimAmount(0.0f);
+
     }// End initSetViews
 
     // Set animation variables
@@ -287,12 +307,8 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
     // When a marker clicked
     private void showMarkerInfoWindow() {
 
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
         dialog.setContentView(R.layout.window_marker);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        dialog.getWindow().setDimAmount(0.0f);
+
 
         WindowManager.LayoutParams wmlp = dialog.getWindow().getAttributes();
 
@@ -308,9 +324,10 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
             wmlp.y = 0;     //y position
         }
 
-        final double lat = Double.valueOf(Constants.SPOTDATA.getLat());
-        final double lng = Double.valueOf(Constants.SPOTDATA.getLng());
+        final double lat = Double.valueOf(Constants.SLECTED_SPOT.getLat());
+        final double lng = Double.valueOf(Constants.SLECTED_SPOT.getLng());
         latLngToAddress(lat, lng);
+
 
         distance = getDistance();
 
@@ -323,13 +340,14 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
             address.setText(theAddress);
 
         final TextView open = (TextView) dialog.findViewById(R.id.open);
-        if (Constants.SPOTDATA.getIsReserved())
-            open.setText("No");
-        else
-            open.setText("Yes");
+        open.setText( String.valueOf(getNumOfOpenSpots()));
+//        if (Constants.SLECTED_SPOT.getIsReserved())
+//            open.setText("No");
+//        else
+//            open.setText(getNumOfOpenSpots());
 
         final TextView cost = (TextView) dialog.findViewById(R.id.cost);
-        final String costStr = Constants.SPOTDATA.getCostPerMinute();
+        final String costStr = Constants.SLECTED_SPOT.getCostPerMinute();
         cost.setText(costStr);
 
         final TextView distanceTv = (TextView) dialog.findViewById(R.id.distance);
@@ -339,7 +357,7 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
         payBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reserveSpotAPIRequest(Constants.SPOTDATA.getId());
+                reserveSpotAPIRequest(Constants.SLECTED_SPOT.getId());
             }
         });
 
@@ -359,11 +377,8 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
     // when Reserve button clicked
     private void showReserveWindow(String title, String msg) {
 
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.window_dialog);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        dialog.getWindow().setDimAmount(0.0f);
+
 
         final TextView titleTv = (TextView) dialog.findViewById(R.id.title);
         titleTv.setText(title);
@@ -402,17 +417,14 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
     // When More button clicked
     private void showMoreWindow() {
 
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.window_more);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        dialog.getWindow().setDimAmount(0.0f);
+
 
         // Get data
-        final String name = Constants.SPOTDATA.getName();
-        String costPrMin = Constants.SPOTDATA.getCostPerMinute();
-        String maxVal = String.valueOf(Constants.SPOTDATA.getMaxReserveTimeMins());
-        String minVal = String.valueOf(Constants.SPOTDATA.getMinReserveTimeMins());
+        final String name = Constants.SLECTED_SPOT.getName();
+        String costPrMin = Constants.SLECTED_SPOT.getCostPerMinute();
+        String maxVal = String.valueOf(Constants.SLECTED_SPOT.getMaxReserveTimeMins());
+        String minVal = String.valueOf(Constants.SLECTED_SPOT.getMinReserveTimeMins());
 
         // Set values to views
         final TextView address = (TextView) dialog.findViewById(R.id.address);
@@ -431,14 +443,14 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
         minTime.setText(minVal);
 
         final TextView reservdUntl = (TextView) dialog.findViewById(R.id.reservdUntl);
-        if (Constants.SPOTDATA.getReservedUntil() != null) {
+        if (Constants.SLECTED_SPOT.getReservedUntil() != null) {
             final String date =
-                    Constants.SPOTDATA.getReservedUntil().toString().replace("T", "  ").replace("Z", "");
+                    Constants.SLECTED_SPOT.getReservedUntil().toString().replace("T", "  ").replace("Z", "");
             reservdUntl.setText(date);
         }
 
         final TextView isReservd = (TextView) dialog.findViewById(R.id.isReserved);
-        if (Constants.SPOTDATA.getIsReserved())
+        if (Constants.SLECTED_SPOT.getIsReserved())
             isReservd.setText("Reserved");
         else
             isReservd.setText("Not reserved");
@@ -458,6 +470,22 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
     // Toast for messages
     private void showToast(String s) {
         Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+
+    }
+
+    // Send spot data to SpotInfoActivity and open it
+    private void openInfoActivityWithExtras() {
+        Intent i = new Intent(ctx, SpotInfoActivity.class);
+        String location = Constants.SLECTED_SPOT.getLat() + "," + Constants.SLECTED_SPOT.getLng();
+        i.putExtra(Constants.LOCATION, location);
+        i.putExtra(Constants.ADDR_NAME, addrName);
+        i.putExtra(Constants.THE_ADDRESS, theAddress);
+        i.putExtra(Constants.DISTANCE, distance);
+        i.putExtra(Constants.SEEKBAR_MINUTES, minutes);
+        i.putExtra(Constants.DATE_TIME_STRING, selectedDateTime);
+        i.putExtra(Constants.OPEN_SPOTS, getNumOfOpenSpots());
+
+        startActivity(i);
 
     }
     //================================================================================
@@ -709,8 +737,8 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
 
         // Get clicked spot's location as a Location object
         final Location spotLocation = new Location("Marker Location");
-        double spotLat = Double.valueOf(Constants.SPOTDATA.getLat());
-        double spotLng = Double.valueOf(Constants.SPOTDATA.getLng());
+        double spotLat = Double.valueOf(Constants.SLECTED_SPOT.getLat());
+        double spotLng = Double.valueOf(Constants.SLECTED_SPOT.getLng());
         spotLocation.setLatitude(spotLat);
         spotLocation.setLongitude(spotLng);
 
@@ -786,6 +814,24 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
     } // End getLocationFromAddress
 
 
+    // Return the number of spots share the same initial name
+    private int getNumOfOpenSpots(){
+        final String spotName = Constants.SLECTED_SPOT.getName();
+        String spotInitial = "";
+        int numOfSpots = 0;
+        for(int i=0; i<3; i++){
+            spotInitial += spotName.charAt(i);
+        }
+        // Go through each found spot and check if there are spots with similar name initial
+        for(SpotData spotData : extraMarkerInfo.values()){
+            if(spotData.getName().contains(spotInitial)){
+                numOfSpots++;
+            }
+        }
+        return numOfSpots ;
+    }
+
+
     // Add the desired minutes to the spot based on its id
     private void addMinutesToSpot() {
         // check if marker already reserved, so we don't add minutes twice
@@ -793,8 +839,8 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
             // first save the minutes
             saveSelectedMinutesVale();
             calendar.add(Calendar.MINUTE, minutes); // add seekbar value to the selected time
-            Constants.SPOTDATA.setReservedUntil(getDateTimeString());
-            Constants.SPOTDATA.setIsReserved(true);
+            Constants.SLECTED_SPOT.setReservedUntil(getDateTimeString());
+            Constants.SLECTED_SPOT.setIsReserved(true);
         }
     }
 
@@ -806,21 +852,6 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
         editor.apply();
     }
 
-
-    // Send spot data to SpotInfoActivity and open it
-    private void openInfoActivityWithExtras() {
-        Intent i = new Intent(ctx, SpotInfoActivity.class);
-        String location = Constants.SPOTDATA.getLat() + "," + Constants.SPOTDATA.getLng();
-        i.putExtra(Constants.LOCATION, location);
-        i.putExtra(Constants.ADDR_NAME, addrName);
-        i.putExtra(Constants.THE_ADDRESS, theAddress);
-        i.putExtra(Constants.DISTANCE, distance);
-        i.putExtra(Constants.SEEKBAR_MINUTES, minutes);
-        i.putExtra(Constants.DATE_TIME_STRING, selectedDateTime);
-
-        startActivity(i);
-
-    }
 
     // Create location point marker
     private void addSrchLocationMarker() {
@@ -867,9 +898,8 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
                         LatLng spot = new LatLng(Double.valueOf(spots.get(i).getLat()), Double.valueOf(spots.get(i).getLng()));
 
                         Marker marker = gmap.addMarker(new MarkerOptions()
-                                .position(spot)
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker))
-                        );
+                                .position(spot).icon(BitmapDescriptorFactory
+                                        .fromResource(R.drawable.marker)));
                         extraMarkerInfo.put(marker.getId(), spots.get(i)); // Add spots to a hash map and let marker's id as a key
                     }
                     addSrchLocationMarker(); // To show the searched location area also
@@ -894,7 +924,7 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
 
         addMinutesToSpot(); // Add desired minutes to the spot
 
-        Call<SpotData> call = apiRequest.reserveSpot(id, Constants.SPOTDATA); // pass query to the endpoint
+        Call<SpotData> call = apiRequest.reserveSpot(id, Constants.SLECTED_SPOT); // pass query to the endpoint
         call.enqueue(new Callback<SpotData>() {
             @Override
             public void onResponse(Call<SpotData> call, Response<SpotData> response) {

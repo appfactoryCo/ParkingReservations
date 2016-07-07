@@ -48,7 +48,7 @@
         android:layout_below="@+id/divider"
         android:layout_marginLeft="@dimen/window_marker_land_marginRight"
         android:layout_marginTop="10dp"
-        android:text="Open"
+        android:text="@string/openSpots"
         android:textColor="@android:color/white"
         android:textSize="12sp" />
 
@@ -58,7 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/opentxt"
-        android:layout_marginLeft="@dimen/window_marker_land_marginRight"
+        android:layout_marginLeft="47dp"
         android:textColor="@android:color/white"
         android:textSize="16sp"
         android:textStyle="bold" />
@@ -70,7 +70,7 @@
         android:layout_below="@+id/divider"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
-        android:text="Cost"
+        android:text="@string/cost"
         android:textColor="@android:color/white"
         android:textSize="12sp" />
 
@@ -93,7 +93,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="/min"
+            android:text="@string/min"
             android:textColor="@android:color/white"
             android:textSize="12sp" />
     </LinearLayout>
@@ -105,9 +105,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/divider"
-        android:layout_marginRight="5dp"
+        android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
-        android:text="Distance"
+        android:text="@string/distance"
         android:textColor="@android:color/white"
         android:textSize="12sp" />
 
@@ -131,7 +131,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=" miles"
+            android:text="@string/miles"
             android:textColor="@android:color/white"
             android:textSize="12sp" />
 
@@ -139,13 +139,14 @@
 
     <Button
         android:id="@+id/pay"
-        android:layout_width="200dp"
+        android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_below="@+id/costlayout"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="30dp"
         android:layout_marginTop="15dp"
         android:background="@android:color/white"
-        android:text="Pay and Reserve"
+        android:text="@string/payAndReserve"
         android:textAllCaps="false"
         android:textColor="@color/lightgreen" />
 
@@ -154,10 +155,11 @@
         android:layout_width="wrap_content"
         android:layout_height="20dp"
         android:layout_below="@+id/pay"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="27dp"
         android:layout_marginTop="10dp"
         android:background="@android:color/transparent"
-        android:text="More"
+        android:text="@string/more"
         android:textAllCaps="false"
         android:textColor="@android:color/white" />
 

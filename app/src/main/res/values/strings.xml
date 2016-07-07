@@ -3,4 +3,11 @@
     <string name="title_activity_parking_spots">Parking Spots</string>
     <string name="splash_title">San Francisco</string>
     <string name="splash_msg">Parking \n Reservations</string>
+    <string name="openSpots">Open Spots</string>
+    <string name="cost">Cost</string>
+    <string name="distance">Distance</string>
+    <string name="miles">" milies"</string>
+    <string name="payAndReserve">Pay and Reserve</string>
+    <string name="more">More</string>
+    <string name="min">/min</string>
 </resources>

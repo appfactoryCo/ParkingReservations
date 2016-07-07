@@ -83,7 +83,7 @@
                 android:layout_below="@+id/divider"
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="5dp"
-                android:text="Open"
+                android:text="@string/openSpots"
                 android:textColor="@android:color/white"
                 android:textSize="12sp" />
 
@@ -93,7 +93,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/opentxt"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="40dp"
                 android:textColor="@color/colorPrimary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -105,7 +105,7 @@
                 android:layout_below="@+id/divider"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="5dp"
-                android:text="Cost"
+                android:text="@string/cost"
                 android:textColor="@android:color/white"
                 android:textSize="12sp" />
 
@@ -128,7 +128,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="/min"
+                    android:text="@string/min"
                     android:textColor="@android:color/white"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -140,9 +140,9 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/divider"
-                android:layout_marginRight="20dp"
+                android:layout_marginRight="25dp"
                 android:layout_marginTop="5dp"
-                android:text="Distance"
+                android:text="@string/distance"
                 android:textColor="@android:color/white"
                 android:textSize="12sp" />
 
@@ -166,7 +166,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=" miles"
+                    android:text="@string/miles"
                     android:textColor="@android:color/white"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -284,7 +284,7 @@
             android:layout_below="@+id/dateTimeLayout"
             android:layout_marginTop="14dp"
             android:layout_toRightOf="@+id/seekval"
-            android:text=" min"
+            android:text="@string/min"
             android:textColor="@color/colorAccent"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -356,7 +356,7 @@
             android:layout_marginLeft="@dimen/margin"
             android:layout_marginRight="@dimen/margin"
             android:background="@color/colorPrimary"
-            android:text="Pay and Reserve"
+            android:text="@string/payAndReserve"
             android:textAllCaps="false"
             android:textColor="@android:color/white" />
 

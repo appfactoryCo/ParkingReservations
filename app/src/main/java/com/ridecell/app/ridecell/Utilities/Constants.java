@@ -18,9 +18,10 @@ public class Constants {
     public static final String DISTANCE = "distance";
     public static final String SEEKBAR_MINUTES = "minutes";
     public static final String DATE_TIME_STRING = "dateTimeStr";
-    public static SpotData SPOTDATA;
+    public static SpotData SLECTED_SPOT;
     public static final String MINUTES_KEY = "minutesKey";
     public static final String SHARED_PREFS = "sharedPrefs";
+    public static final String OPEN_SPOTS = "openspots";
 
 
     public static final double MILES_IN_METER = 0.000621371;

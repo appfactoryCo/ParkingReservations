@@ -282,7 +282,7 @@
             android:layout_below="@+id/dateTimeLayout"
             android:layout_marginTop="14dp"
             android:layout_toRightOf="@+id/seekval"
-            android:text="@string/min"
+            android:text=" min"
             android:textColor="@color/colorAccent"
             android:textSize="16sp"
             android:textStyle="bold" />

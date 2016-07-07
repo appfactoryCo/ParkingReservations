@@ -146,21 +146,8 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
                 selectedMarker = marker;
 
                 Constants.SLECTED_SPOT = foundSpotsMap.get(marker.getId());
-
-                if (Constants.SLECTED_SPOT != null) {
-                    LatLng spot = new LatLng(Double.valueOf(Constants.SLECTED_SPOT.getLat()),
-                            Double.valueOf(Constants.SLECTED_SPOT.getLng()));
-                    gmap.animateCamera(CameraUpdateFactory.newLatLng(spot), 200, new GoogleMap.CancelableCallback() {
-                        @Override
-                        public void onFinish() {
-                            showMarkerInfoWindow();
-                        }
-
-                        @Override
-                        public void onCancel() {
-                        }
-                    });
-                }
+                int orientation = getResources().getConfiguration().orientation;
+                moveMapCameraToSpot(orientation);
                 return true;
             }
         });
@@ -171,13 +158,18 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        // Checks the orientation of the screen
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        if(dialog != null) {
             dialog.dismiss();
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-            dialog.dismiss();
+            // Checks the orientation of the screen
+            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                moveMapCameraToSpot(Configuration.ORIENTATION_LANDSCAPE);
+            } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                moveMapCameraToSpot(Configuration.ORIENTATION_PORTRAIT);
+            }
         }
     }
+
+
     //================================================================================
     // END ACTIVITY METHODS
     //================================================================================
@@ -243,7 +235,7 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
         srchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                doParkingSearch();
+                setParkingSearch();
             }
         });
 
@@ -303,24 +295,35 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
     } // End hideKeyboard
 
 
+    // When tapping a spot, focus the map camera on it, then call show marker window method
+    private void moveMapCameraToSpot(final int orientation){
+        if (Constants.SLECTED_SPOT != null) {
+            Double lat = Double.valueOf(Constants.SLECTED_SPOT.getLat());
+            Double lng = Double.valueOf(Constants.SLECTED_SPOT.getLng());
+            LatLng spot = new LatLng(lat, lng);
+            gmap.animateCamera(CameraUpdateFactory.newLatLng(spot), 200, new GoogleMap.CancelableCallback() {
+                @Override
+                public void onFinish() {
+                    setDialogPosition(orientation);
+                    showMarkerInfoWindow();
+                }
+
+                @Override
+                public void onCancel() {
+                }
+            });
+        }
+    }
+
+
     // When a marker clicked
     private void showMarkerInfoWindow() {
 
         dialog.setContentView(R.layout.window_marker);
-
-        WindowManager.LayoutParams wmlp = dialog.getWindow().getAttributes();
-
-        // Set info widnow position based on screen orientation
         int orientation = this.getResources().getConfiguration().orientation;
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            wmlp.gravity = Gravity.TOP | Gravity.CENTER;
-            wmlp.x = 0;   //x position
-            wmlp.y = 290;   //y position
-        } else {
-            wmlp.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
-            wmlp.x = 0;   //x position
-            wmlp.y = 0;     //y position
-        }
+        setDialogPosition(orientation);
+
+
 
         final double lat = Double.valueOf(Constants.SLECTED_SPOT.getLat());
         final double lng = Double.valueOf(Constants.SLECTED_SPOT.getLng());
@@ -339,10 +342,6 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
 
         final TextView open = (TextView) dialog.findViewById(R.id.open);
         open.setText( String.valueOf(getNumOfOpenSpots()));
-//        if (Constants.SLECTED_SPOT.getIsReserved())
-//            open.setText("No");
-//        else
-//            open.setText(getNumOfOpenSpots());
 
         final TextView cost = (TextView) dialog.findViewById(R.id.cost);
         final String costStr = Constants.SLECTED_SPOT.getCostPerMinute();
@@ -503,7 +502,7 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    doParkingSearch();
+                    setParkingSearch();
                 }
                 return false;
             }
@@ -676,15 +675,29 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
     //================================================================================
     // SETUPS AND CONVERSION METHODS
     //================================================================================
+    private void setDialogPosition(int orientation){
+        WindowManager.LayoutParams wmlp = dialog.getWindow().getAttributes();
+        // Set info widnow position based on screen orientation
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            wmlp.gravity = Gravity.TOP | Gravity.CENTER;
+            wmlp.x = 0;   //x position
+            wmlp.y = 290;   //y position
+        } else {
+            wmlp.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
+            wmlp.x = 0;   //x position
+            wmlp.y = 0;     //y position
+        }
+    }
+
 
     //Perform parking search based on search term and AsyncTask to get its geo point
-    private void doParkingSearch() {
+    private void setParkingSearch() {
         if (!srchField.getText().toString().equals("")
                 && !dateField.getText().toString().equals("")
                 && !timeField.getText().toString().equals("")) {
             srchTerm = srchField.getText().toString() + ", San Francisco, California";
             hideSearchWindow();
-            //Starting a task to convert address to geo point and request the api
+            //Execute a task to convert address to geo point and request the api
             new getGeoPointTask().execute();
         } else {
             showToast("Please complete all fields");

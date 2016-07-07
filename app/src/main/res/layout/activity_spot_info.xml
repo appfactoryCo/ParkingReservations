@@ -24,7 +24,7 @@
             android:layout_marginTop="40dp"
             android:alpha="0.36"
             android:gravity="center"
-            android:text="Loading image..."
+            android:text="@string/loadingImg"
             android:textColor="@color/lightgreentrans"
             android:textSize="40sp"
             android:textStyle="bold" />
@@ -158,7 +158,6 @@
                     android:id="@+id/distance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/distancetxt"
                     android:textColor="@color/colorPrimary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -198,7 +197,6 @@
         android:id="@+id/controLayout"
         android:layout_width="match_parent"
         android:layout_height="0px"
-        android:layout_centerHorizontal="true"
         android:layout_marginLeft="@dimen/margin"
         android:layout_marginRight="@dimen/margin"
         android:layout_weight="0.55"
@@ -226,7 +224,7 @@
                 android:layout_marginRight="50dp"
                 android:layout_marginTop="7dp"
                 android:focusable="false"
-                android:hint="Date"
+                android:hint="@string/hintDate"
                 android:textColor="@android:color/darker_gray"
                 android:textColorHint="@color/gray"
                 android:textSize="16sp" />
@@ -245,7 +243,7 @@
                 android:layout_marginLeft="5dp"
                 android:layout_marginTop="5dp"
                 android:focusable="false"
-                android:hint="Time"
+                android:hint="@string/hintTime"
                 android:textColor="@android:color/darker_gray"
                 android:textColorHint="@color/gray"
                 android:textSize="16sp" />
@@ -261,7 +259,7 @@
             android:layout_below="@+id/dateTimeLayout"
             android:layout_marginLeft="16dp"
             android:layout_marginTop="13dp"
-            android:text="Reserve for: "
+            android:text="@string/reserveFor"
             android:textColor="@android:color/darker_gray"
             android:textSize="16sp" />
 
@@ -273,7 +271,7 @@
             android:layout_marginLeft="5dp"
             android:layout_marginTop="13dp"
             android:layout_toRightOf="@+id/rsrvfor"
-            android:text="10"
+            android:text="@string/seekVal"
             android:textColor="@color/colorAccent"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -297,7 +295,7 @@
             android:layout_below="@+id/dateTimeLayout"
             android:layout_marginRight="16dp"
             android:layout_marginTop="15dp"
-            android:text="120 min"
+            android:text="@string/min120"
             android:textColor="@color/gray"
             android:textSize="12sp" />
 

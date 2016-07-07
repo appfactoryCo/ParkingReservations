@@ -76,7 +76,7 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
     // PROPERTIES
     //================================================================================
     private GoogleMap gmap;
-    private HashMap<String, SpotData> extraMarkerInfo = new HashMap<>();
+    private HashMap<String, SpotData> foundSpotsMap = new HashMap<>();
     private Retrofit retrofit = new Retrofit.Builder()
             .baseUrl(Constants.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
@@ -108,7 +108,6 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
     private ArrayList<Marker> reservedMarkers;
     private SharedPreferences sharedPrefs;
     private GestureDetector gDetector;
-    private int openSpots;
     private Dialog dialog ;
 
 
@@ -146,7 +145,7 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
             public boolean onMarkerClick(Marker marker) {
                 selectedMarker = marker;
 
-                Constants.SLECTED_SPOT = extraMarkerInfo.get(marker.getId());
+                Constants.SLECTED_SPOT = foundSpotsMap.get(marker.getId());
 
                 if (Constants.SLECTED_SPOT != null) {
                     LatLng spot = new LatLng(Double.valueOf(Constants.SLECTED_SPOT.getLat()),
@@ -308,7 +307,6 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
     private void showMarkerInfoWindow() {
 
         dialog.setContentView(R.layout.window_marker);
-
 
         WindowManager.LayoutParams wmlp = dialog.getWindow().getAttributes();
 
@@ -823,7 +821,7 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
             spotInitial += spotName.charAt(i);
         }
         // Go through each found spot and check if there are spots with similar name initial
-        for(SpotData spotData : extraMarkerInfo.values()){
+        for(SpotData spotData : foundSpotsMap.values()){
             if(spotData.getName().contains(spotInitial)){
                 numOfSpots++;
             }
@@ -900,7 +898,7 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
                         Marker marker = gmap.addMarker(new MarkerOptions()
                                 .position(spot).icon(BitmapDescriptorFactory
                                         .fromResource(R.drawable.marker)));
-                        extraMarkerInfo.put(marker.getId(), spots.get(i)); // Add spots to a hash map and let marker's id as a key
+                        foundSpotsMap.put(marker.getId(), spots.get(i)); // Add spots to a hash map and let marker's id as a key
                     }
                     addSrchLocationMarker(); // To show the searched location area also
                 }

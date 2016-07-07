@@ -10,4 +10,20 @@
     <string name="payAndReserve">Pay and Reserve</string>
     <string name="more">More</string>
     <string name="min">/min</string>
+    <string name="spot">spot</string>
+    <string name="costPrMin">Cost/min</string>
+    <string name="reserveStatus">Status</string>
+    <string name="reservedUntl">Reserved Until</string>
+    <string name="maxTimePrMin">Max Reservation Time/min</string>
+    <string name="minTimePrMin">Minimum Reservation Time/min</string>
+    <string name="close">Close</string>
+    <string name="moreInfoWindow">More info window</string>
+    <string name="loadingImg">"Loading Image..."</string>
+    <string name="hintDate">Date</string>
+    <string name="hintTime">Time</string>
+    <string name="reserveFor">Reserve for:</string>
+    <string name="seekVal">10</string>
+    <string name="min120">120 min</string>
+
+
 </resources>

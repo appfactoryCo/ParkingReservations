@@ -23,7 +23,7 @@
             android:layout_marginTop="40dp"
             android:alpha="0.36"
             android:gravity="center"
-            android:text="Loading image..."
+            android:text="@string/loadingImg"
             android:textColor="@color/lightgreentrans"
             android:textSize="40sp"
             android:textStyle="bold" />
@@ -211,7 +211,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
             android:focusable="false"
-            android:hint="Date"
+            android:hint="@string/hintDate"
             android:textColor="@android:color/darker_gray"
             android:textColorHint="@color/gray"
             android:textSize="16sp" />
@@ -231,7 +231,7 @@
             android:layout_marginBottom="12dp"
             android:layout_marginTop="3dp"
             android:focusable="false"
-            android:hint="Time"
+            android:hint="@string/hintTime"
             android:textColor="@android:color/darker_gray"
             android:textColorHint="@color/gray"
 
@@ -249,7 +249,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
                 android:layout_marginLeft="5dp"
-                android:text="Reserve for: "
+                android:text="@string/reserveFor"
                 android:textColor="@android:color/darker_gray"
                 android:textSize="13sp" />
 
@@ -318,7 +318,6 @@
             android:id="@+id/separatorsLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/streetImg"
             android:layout_marginTop="-13dp">
 
             <ImageView

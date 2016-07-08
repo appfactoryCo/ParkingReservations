@@ -52,6 +52,7 @@ import com.ridecell.app.ridecell.Interfaces.ReserveInterface;
 import com.ridecell.app.ridecell.Interfaces.SearchInterface;
 import com.ridecell.app.ridecell.R;
 import com.ridecell.app.ridecell.Utilities.Constants;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -61,7 +62,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -144,10 +144,8 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
             @Override
             public boolean onMarkerClick(Marker marker) {
                 selectedMarker = marker;
-
                 Constants.SLECTED_SPOT = foundSpotsMap.get(marker.getId());
-                int orientation = getResources().getConfiguration().orientation;
-                moveMapCameraToSpot(orientation);
+                moveMapCameraToSpot();
                 return true;
             }
         });
@@ -162,14 +160,12 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
             dialog.dismiss();
             // Checks the orientation of the screen
             if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                moveMapCameraToSpot(Configuration.ORIENTATION_LANDSCAPE);
+                moveMapCameraToSpot();
             } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                moveMapCameraToSpot(Configuration.ORIENTATION_PORTRAIT);
+                moveMapCameraToSpot();
             }
         }
     }
-
-
     //================================================================================
     // END ACTIVITY METHODS
     //================================================================================
@@ -296,7 +292,7 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
 
 
     // When tapping a spot, focus the map camera on it, then call show marker window method
-    private void moveMapCameraToSpot(final int orientation){
+    private void moveMapCameraToSpot(){
         if (Constants.SLECTED_SPOT != null) {
             Double lat = Double.valueOf(Constants.SLECTED_SPOT.getLat());
             Double lng = Double.valueOf(Constants.SLECTED_SPOT.getLng());
@@ -304,7 +300,6 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
             gmap.animateCamera(CameraUpdateFactory.newLatLng(spot), 200, new GoogleMap.CancelableCallback() {
                 @Override
                 public void onFinish() {
-                    setDialogPosition(orientation);
                     showMarkerInfoWindow();
                 }
 
@@ -320,21 +315,19 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
     private void showMarkerInfoWindow() {
 
         dialog.setContentView(R.layout.window_marker);
-        int orientation = this.getResources().getConfiguration().orientation;
-        setDialogPosition(orientation);
 
+        setDialogPosition();
 
-
+        // Get marker's lat and lng
         final double lat = Double.valueOf(Constants.SLECTED_SPOT.getLat());
         final double lng = Double.valueOf(Constants.SLECTED_SPOT.getLng());
+
+        // Get the address and set the views
         latLngToAddress(lat, lng);
 
-
-        distance = getDistance();
-
-        final TextView location = (TextView) dialog.findViewById(R.id.locationName);
+        final TextView locationTv = (TextView) dialog.findViewById(R.id.locationName);
         if (addrName != null)
-            location.setText(addrName);
+            locationTv.setText(addrName);
 
         final TextView address = (TextView) dialog.findViewById(R.id.address);
         if (theAddress != null)
@@ -348,6 +341,18 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
         cost.setText(costStr);
 
         final TextView distanceTv = (TextView) dialog.findViewById(R.id.distance);
+        // Get distance between searched and selected spots
+        Location spotLocation = new Location("Spot Location");
+        spotLocation.setLatitude(lat);
+        spotLocation.setLongitude(lng);
+        // Get search location
+        Location srchLocation = new Location("Search Location");
+        srchLocation.setLatitude(srchPoint.latitude);
+        srchLocation.setLongitude(srchPoint.longitude);
+        // Call distance method and set a formatted value
+        double distanceDouble = getDistance(srchLocation, spotLocation);
+        DecimalFormat df = new DecimalFormat("#.##");
+        distance = String.valueOf(df.format(distanceDouble));
         distanceTv.setText(distance);
 
         final Button payBtn = (Button) dialog.findViewById(R.id.pay);
@@ -366,6 +371,12 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
             }
         });
 
+        // Set the street view image using Picasso
+        final ImageView streetView = (ImageView) dialog.findViewById(R.id.streetImg);
+        final String latLng = Constants.SLECTED_SPOT.getLat() + "," + Constants.SLECTED_SPOT.getLng();
+        final String imgUrl = getStreetViewUrl(latLng);
+        Picasso.with(this).load(imgUrl).into(streetView);
+
         dialog.show();
 
     } // End showMarkerInfoWindow
@@ -375,7 +386,6 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
     private void showReserveWindow(String title, String msg) {
 
         dialog.setContentView(R.layout.window_dialog);
-
 
         final TextView titleTv = (TextView) dialog.findViewById(R.id.title);
         titleTv.setText(title);
@@ -415,7 +425,6 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
     private void showMoreWindow() {
 
         dialog.setContentView(R.layout.window_more);
-
 
         // Get data
         final String name = Constants.SLECTED_SPOT.getName();
@@ -675,7 +684,8 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
     //================================================================================
     // SETUPS AND CONVERSION METHODS
     //================================================================================
-    private void setDialogPosition(int orientation){
+    private void setDialogPosition(){
+        int orientation = this.getResources().getConfiguration().orientation;
         WindowManager.LayoutParams wmlp = dialog.getWindow().getAttributes();
         // Set info widnow position based on screen orientation
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -684,7 +694,7 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
             wmlp.y = 290;   //y position
         } else {
             wmlp.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
-            wmlp.x = 0;   //x position
+            wmlp.x = 70;   //x position
             wmlp.y = 0;     //y position
         }
     }
@@ -739,29 +749,13 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
 
 
     // Get the distance between the searched point and the clicked marker
-    private String getDistance() {
+    private double getDistance(Location location1, Location location2) {
 
-        // Get searched location as a Location object
-        final Location srchLocation = new Location("Search Location");
-        srchLocation.setLatitude(srchPoint.latitude);
-        srchLocation.setLongitude(srchPoint.longitude);
-
-        // Get clicked spot's location as a Location object
-        final Location spotLocation = new Location("Marker Location");
-        double spotLat = Double.valueOf(Constants.SLECTED_SPOT.getLat());
-        double spotLng = Double.valueOf(Constants.SLECTED_SPOT.getLng());
-        spotLocation.setLatitude(spotLat);
-        spotLocation.setLongitude(spotLng);
-
-        final Float disInMeters = srchLocation.distanceTo(spotLocation);
+        final Float disInMeters = location1.distanceTo(location2);
 
         final double disInMiles = disInMeters * Constants.MILES_IN_METER;
 
-        DecimalFormat df = new DecimalFormat("#.##");
-
-        String distance = String.valueOf(df.format(disInMiles));
-
-        return distance;
+        return disInMiles;
     }
 
 
@@ -877,9 +871,71 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
                 .build();
         final Marker marker = gmap.addMarker(new MarkerOptions().position(srchPoint).title(addrName));
         marker.showInfoWindow();
-        gmap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        gmap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 2000,
+                new GoogleMap.CancelableCallback() {
+                    @Override
+                    public void onFinish() { // When finished Animate to nearst spot
+
+                        // Get search location
+                        Location srchLocation = new Location("Search Location");
+                        srchLocation.setLatitude(srchPoint.latitude);
+                        srchLocation.setLongitude(srchPoint.longitude);
+
+                        Location spotLocation = new Location("Spot Location");
+                        double smallestDist = 1000000;
+                        SpotData nearstSpot = new SpotData();
+
+                        for(SpotData spotData: foundSpotsMap.values()){
+                            final double lat = Double.valueOf(spotData.getLat());
+                            final double lng = Double.valueOf(spotData.getLng());
+                            spotLocation.setLatitude(lat);
+                            spotLocation.setLongitude(lng);
+
+                            double distance = getDistance(srchLocation, spotLocation);
+
+                            if(distance < smallestDist) {
+                                smallestDist = distance;
+                                nearstSpot = spotData;
+                            }
+                        }
+
+                        // Create a geo point of nearst spot and animate the map camera to it
+                        final double nearstLat = Double.valueOf(nearstSpot.getLat());
+                        final double nearstLng = Double.valueOf(nearstSpot.getLng());
+                        final LatLng nearsPoint = new LatLng(nearstLat, nearstLng);
+                        final CameraPosition cameraPosition = new CameraPosition.Builder()
+                                .target(nearsPoint)
+                                .zoom(15)
+                                .bearing(90)
+                                .tilt(30)
+                                .build();
+                        gmap.animateCamera(
+                                CameraUpdateFactory.newCameraPosition(cameraPosition), 3000, null);
+
+                        // Convert distance from double to string and show a toast
+                        DecimalFormat df = new DecimalFormat("#.##");
+                        String distanceStr = String.valueOf(df.format(smallestDist));
+                        showToast(String.valueOf("Nearest parking is " + distanceStr + " miles away"));
+                    }
+
+                    @Override
+                    public void onCancel() {
+
+                    }
+                });
 
     }// End addSrchLocationMarker
+
+
+    // Get Google street view image url
+    private String getStreetViewUrl(String location){
+        // The Google url for google image view api
+        final String imgUrl = "https://maps.googleapis.com/maps/api/streetview?size=600x300&location="
+                + location + "&fov=120&pitch=0&key=" + Constants.GOOGLE_STREET_VIEW_API_KEY;
+
+        return imgUrl;
+    }
+
     //================================================================================
     // END SETUPS AND CONVERSION METHODS
     //================================================================================
@@ -904,15 +960,17 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
 
                     hideSpinner();
 
-                    final List<SpotData> spots = response.body(); // Get SpotData-type spots from the response
-                    for (int i = 0; i < spots.size(); i++) {
-                        LatLng spot = new LatLng(Double.valueOf(spots.get(i).getLat()), Double.valueOf(spots.get(i).getLng()));
-
-                        Marker marker = gmap.addMarker(new MarkerOptions()
-                                .position(spot).icon(BitmapDescriptorFactory
-                                        .fromResource(R.drawable.marker)));
-                        foundSpotsMap.put(marker.getId(), spots.get(i)); // Add spots to a hash map and let marker's id as a key
+                    if(response.body() != null) {
+                        final List<SpotData> spots = response.body(); // Get SpotData-type spots from the response
+                        for (int i = 0; i < spots.size(); i++) {
+                            LatLng spot = new LatLng(Double.valueOf(spots.get(i).getLat()), Double.valueOf(spots.get(i).getLng()));
+                            Marker marker = gmap.addMarker(new MarkerOptions()
+                                    .position(spot).icon(BitmapDescriptorFactory
+                                            .fromResource(R.drawable.marker)));
+                            foundSpotsMap.put(marker.getId(), spots.get(i)); // Add spots to a hash map and let marker's id as a key
+                        }
                     }
+
                     addSrchLocationMarker(); // To show the searched location area also
                 }
             }
@@ -941,9 +999,10 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
             public void onResponse(Call<SpotData> call, Response<SpotData> response) {
 
                 if (response.isSuccessful()) {
-                    showReserveWindow("Great!", "Your reservation has been confirmed.");
-                    reservedMarkers.add(selectedMarker);
-                    selectedMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.marker_reserved));
+
+                        showReserveWindow("Great!", "Your reservation has been confirmed.");
+                        reservedMarkers.add(selectedMarker);
+                        selectedMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.marker_reserved));
 
                 } else {
                     if (response.body() == null) {
@@ -954,7 +1013,6 @@ public class ParkingSpotsActivity extends FragmentActivity implements OnMapReady
 
             @Override
             public void onFailure(Call<SpotData> call, Throwable t) {
-
                 showReserveWindow("Sorry!", t.getMessage());
             }
         });

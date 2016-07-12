@@ -6,6 +6,16 @@ Reserve parking spots in the area of San Francisco
 
 Download the zip file, unzip it, and use Android Studio to import the project folder. I compiled it using Android 2.2 preview 3.
 
+If you get an error like: Unsupported major.minor version 52.0,
+
+Go to the porject's build.gradle and update the dependancy:
+
+```javascript
+dependencies {
+        classpath 'com.android.tools.build:gradle:2.1.2' 
+    }
+```
+
 The app uses two Google API kies- one for maps one for street view imagery. I left my kies in the project
 and the app should work fine as dowloaded and imported to Android studio without any setups. 
 
